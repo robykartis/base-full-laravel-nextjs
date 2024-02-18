@@ -1,5 +1,7 @@
 <?php
 
+use Laravel\Sanctum\Sanctum;
+
 return [
 
     /*
@@ -7,17 +9,16 @@ return [
     | Stateful Domains
     |--------------------------------------------------------------------------
     |
-    | Requests from the following domains / hosts will receive stateful API
+    | Requests from the following domains / hosts will receive stateful Jwt
     | authentication cookies. Typically, these should include your local
-    | and production domains which access your API via a frontend SPA.
+    | and production domains which access your Jwt via a frontend SPA.
     |
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s%s',
+        '%s%s',
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : '',
-        env('FRONTEND_URL') ? ','.parse_url(env('FRONTEND_URL'), PHP_URL_HOST) : ''
+        Sanctum::currentApplicationUrlWithPort()
     ))),
 
     /*
@@ -40,8 +41,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value controls the number of minutes until an issued token will be
-    | considered expired. This will override any values set in the token's
-    | "expires_at" attribute, but first-party sessions are not affected.
+    | considered expired. If this value is null, personal access tokens do
+    | not expire. This won't tweak the lifetime of first-party sessions.
     |
     */
 
@@ -60,7 +61,7 @@ return [
 
     'middleware' => [
         'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
-        'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+        'encrypt_cookies'   => App\Http\Middleware\EncryptCookies::class,
     ],
 
 ];
